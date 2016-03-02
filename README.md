@@ -1,6 +1,6 @@
 # Vertebrae
-
 ## Simple DI container, written in Go
+[Link to the pair blog post](http://ewanvalentine.io/writing-a-service-container-in-go/)
 
 ```go
 // Example:

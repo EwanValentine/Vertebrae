@@ -19,6 +19,12 @@ type Vertebrae struct {
 // Note: You want to make sure that you reference a pointer rather than a
 // raw struct in a situation like this.
 func (v *Vertebrae) Add(name string, object interface{}) {
+
+	// Check if map has been initialised yet
+	if v.m == nil {
+		v.m = make(map[string]interface{})
+	}
+
 	v.mux.Lock()
 	v.m[name] = object
 	v.mux.Unlock()

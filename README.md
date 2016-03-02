@@ -5,13 +5,25 @@
 ```go
 // Example:
 myApp := &MyApp{}
-container := make(Vertebrae)
+container := new(Vertebrae)
 
 container.Add("my.service", myApp)
 container.Add("my.string", "Testing 123")
 
-fmt.Println(container["my.service"].(*MyApp).TestService(23))
-fmt.Println(container["my.string"].(string))
+myService, ok := container.Get("my.service")
+
+if !ok {
+    panic("Service 'my.service' not found!")    
+}
+
+myString, ok := container.Get("my.string")
+
+if !ok {
+    panic("Service 'my.string' not found!")    
+}
+
+fmt.Println(myService.(*MyApp).TestService(23))
+fmt.Println(myString.(string))
 
 type MyApp struct{}
 

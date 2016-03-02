@@ -1,32 +1,40 @@
 package vertebrae
 
-type Vertebrae map[string]interface{}
+import (
+	"sync"
+)
 
-// Add service
-func (v Vertebrae) Add(name string, object interface{}) Vertebrae {
-	v[name] = object
-	return v
+// Vertebrae is the foundation of the container store
+// Please edit this to your liking, if you install a linter
+// you will see that all exported items should be commented
+type Vertebrae struct {
+	// This is a locking mechanism. Locking your data in some way shape or form
+	// is essential if your service is going to be used by concurrent processes.
+	mux sync.RWMutex
+
+	m map[string]interface{}
 }
 
-// Remove service
-func (v Vertebrae) Remove(name string) Vertebrae {
-	delete(v, name)
-	return v
+// Add takes a name and an object and adds it to the internal store
+// Note: You want to make sure that you reference a pointer rather than a
+// raw struct in a situation like this.
+func (v *Vertebrae) Add(name string, object interface{}) {
+	v.mux.Lock()
+	v.m[name] = object
+	v.mux.Unlock()
 }
 
-// Example:
-//
-// myApp := &MyApp{}
-//
-// container := make(Vertebrae)
-// container.Add("my.service", myApp)
-// container.Add("my.string", "Testing 123")
-//
-// fmt.Println(container["my.service"].(*MyApp).TestService(23))
-// fmt.Println(container["my.string"].(string))
-//
-// type MyApp struct{}
-//
-// func (myApp *MyApp) TestService(param int) int {
-// 	return 12 + param
-// }
+// Remove service from internal store
+func (v *Vertebrae) Remove(name string) {
+	v.mux.Lock()
+	delete(v.m, name)
+	v.mux.Unlock()
+}
+
+// Get returns a service by name
+func (v *Vertebrae) Get(name string) (object interface{}, ok bool) {
+	v.mux.RLock()
+	object, ok = v.m[name]
+	v.mux.RUnlock()
+	return object, ok
+}
